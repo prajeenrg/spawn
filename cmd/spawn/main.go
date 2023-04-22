@@ -15,7 +15,7 @@ func main() {
 	defer app.Run(os.Args)
 
 	app.Name = "spawn"
-	app.Usage = "generate dummy data files for testing"
+	app.Usage = "generate dummy data files for testing purposes"
 	app.Authors = []*cli.Author{{Name: "Prajeen Govardhanam", Email: "prajeenrg@gmail.com"}}
 	app.Version = version
 	app.UseShortOptionHandling = true
