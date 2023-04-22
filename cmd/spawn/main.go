@@ -8,12 +8,16 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var version = "latest"
+
 func main() {
 	app := cli.NewApp()
 	defer app.Run(os.Args)
 
 	app.Name = "spawn"
 	app.Usage = "generate dummy data files for testing"
+	app.Authors = []*cli.Author{{Name: "Prajeen Govardhanam", Email: "prajeenrg@gmail.com"}}
+	app.Version = version
 	app.UseShortOptionHandling = true
 	app.Commands = []*cli.Command{
 		{

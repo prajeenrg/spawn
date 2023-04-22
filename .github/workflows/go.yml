@@ -22,4 +22,23 @@ jobs:
         go-version-file: "go.mod"
 
     - name: Build
-      run: go build -v ./...
+      run: go build -v --ldflags="${LDFLAGS}" ./...
+      env:
+        BIN_VERSION="$(git rev-parse --short HEAD)"
+        LDFLAGS="-X 'main.version=${BIN_VERSION}'"
+        GOBIN="$(pwd)/bin"
+
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+    - uses: actions/checkout@v3
+    - name: "Create Release"
+      uses: fregante/release-with-changelog@v3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        title: "Release {tag}"
+        draft: false
+        prerelease: false
+    - name: "Upload Release Assets"
