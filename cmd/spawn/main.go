@@ -25,7 +25,7 @@ func main() {
 				&cli.UintFlag{Name: "count", Aliases: []string{"c"}, Value: 1},
 				&cli.StringFlag{Name: "type", Aliases: []string{"t"}, Value: "png"},
 				&cli.StringFlag{Name: "prefix", Aliases: []string{"p"}, Value: "spawn"},
-				&cli.StringFlag{Name: "directory", Aliases: []string{"d"}},
+				&cli.StringFlag{Name: "directory", Aliases: []string{"d"}, Value: "."},
 			},
 			Action: func(ctx *cli.Context) error {
 				prefix := ctx.String("prefix")
