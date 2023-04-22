@@ -14,8 +14,8 @@ jobs:
   build:
     strategy:
       matrix:
-        arch: ["amd64", "arm64", "386"]
-        os: ["windows", "linux", "darwin"]
+        arch: ["amd64", "arm64"]
+        os: ["windows", "linux", "darwin", "freebsd"]
         exclude:
           - os: "darwin"
             arch: "386"
@@ -35,7 +35,7 @@ jobs:
       env:
         GOOS: ${{ matrix.os }}
         GOARCH: ${{ matrix.arch }}
-        LDFLAGS: "-X 'main.version=${{ github.ref_name }}'"
+        LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
 
     - name: "Zip exe files"
       if: ${{ matrix.os == 'windows' }}
