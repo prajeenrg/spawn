@@ -24,21 +24,17 @@ jobs:
     - name: Build
       run: go build -v --ldflags="${LDFLAGS}" ./...
       env:
-        BIN_VERSION="$(git rev-parse --short HEAD)"
-        LDFLAGS="-X 'main.version=${BIN_VERSION}'"
-        GOBIN="$(pwd)/bin"
+        BIN_VERSION: "$(git rev-parse --short HEAD)"
+        LDFLAGS: "-X 'main.version=${BIN_VERSION}'"
+        GOBIN: "$(pwd)/bin"
 
-  release:
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-    - uses: actions/checkout@v3
     - name: "Create Release"
-      uses: fregante/release-with-changelog@v3
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         title: "Release {tag}"
         draft: false
+        file: "spawn"
         prerelease: false
-    - name: "Upload Release Assets"
