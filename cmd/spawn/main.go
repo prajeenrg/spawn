@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"github.com/prajeenrg/spawn/internal/image"
 )
 
 func main() {
-	fmt.Println("Welcome to spawn!")
+	filename := "sample"
+	image.MakePngs(filename, 10)
 }
