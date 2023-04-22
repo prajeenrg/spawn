@@ -1,0 +1,61 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: "Go Release"
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build_release:
+    strategy:
+      matrix:
+        arch: ["amd64", "arm64"]
+        os: ["windows", "linux", "darwin"]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: "go.mod"
+
+    - name: Build
+      run: |
+        mkdir -p "bin/spawn-$GOOS-$GOARCH"
+        go build -v --ldflags="${LDFLAGS}" -o "bin/spawn-$GOOS-$GOARCH" ./...
+      env:
+        GOOS: ${{ matrix.os }}
+        GOARCH: ${{ matrix.arch }}
+        BIN_VERSION: "${{github.ref_name}}"
+        LDFLAGS: "-X 'main.version=${BIN_VERSION}'"
+    
+    - name: Package
+      run: |
+        mkdir snapshots
+        cd bin
+        for $i in $(ls spawn-windows-*); do
+          mv bin/$i/spawn ../snapshots/$i.exe
+        done
+        rm -rf spawn-windows-*
+        find . -maxdepth 1 -mindepth 1 -type d -exec tar czvf ../snapshots/{}.tar.gz {} \;
+
+    - name: Checksum
+      run: |
+        cd snapshots
+        find . -type f -exec sha256sum {} > sha256sums.txt \;
+        cat sha256sums.txt
+
+    - name: "Create Release"
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        generate_release_notes: true
+        files: |
+          snapshots/*

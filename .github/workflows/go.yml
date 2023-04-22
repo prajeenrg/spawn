@@ -5,13 +5,9 @@ name: Go
 
 on:
   push:
-    tags: ["v*"]
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
-env:
-  BIN_DIR: "${{ github.workspace }}/bin"
 
 jobs:
 
@@ -26,19 +22,5 @@ jobs:
         go-version-file: "go.mod"
 
     - name: Build
-      run: |
-        mkdir -p ${BIN_DIR}
-        go build -v --ldflags="${LDFLAGS}" -o ${BIN_DIR} ./...
-      env:
-        BIN_VERSION: "${{github.ref_name}}"
-        LDFLAGS: "-X 'main.version=${BIN_VERSION}'"
+      run: go build -v ./...
 
-    - name: "Create Release"
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/v')
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        generate_release_notes: true
-        files: |
-          ${BIN_DIR}/spawn
