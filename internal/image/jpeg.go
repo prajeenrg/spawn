@@ -20,10 +20,10 @@ func MakeJpeg(filename string, image image.Image) {
 	}
 }
 
-func MakeJpegs(prefix string, count int) {
-	for i := 0; i < count; i++ {
+func MakeJpegs(prefix string, d *Dimens, count uint) {
+	for i := uint(0); i < count; i++ {
 		filename := fmt.Sprintf("%s_%7d.jpg", prefix, i)
-		image := GenerateImage(1000, 1000)
+		image := GenerateImage(d)
 		MakeJpeg(filename, image)
 	}
 }

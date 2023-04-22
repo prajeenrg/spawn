@@ -13,17 +13,17 @@ type Dimens struct {
 	height int
 }
 
-func GenerateImage(width, height int) image.Image {
-	img := image.NewNRGBA(image.Rect(0, 0, width, height))
-	b := make([]byte, width*height*3)
+func GenerateImage(d *Dimens) image.Image {
+	img := image.NewNRGBA(image.Rect(0, 0, d.width, d.height))
+	b := make([]byte, d.width*d.height*3)
 	n, err := rand.Read(b)
 
 	if err != nil {
 		log.Fatalln("Random pixel generation failed")
 	}
 
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
+	for x := 0; x < d.width; x++ {
+		for y := 0; y < d.height; y++ {
 			img.Set(x, y, color.NRGBA{
 				R: b[n-1],
 				G: b[n-2],

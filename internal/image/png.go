@@ -16,10 +16,10 @@ func MakePng(filename string, image image.Image) {
 	}
 }
 
-func MakePngs(prefix string, count int) {
-	for i := 0; i < count; i++ {
+func MakePngs(prefix string, d *Dimens, count uint) {
+	for i := uint(0); i < count; i++ {
 		filename := fmt.Sprintf("%s_%07d.jpg", prefix, i)
-		image := GenerateImage(1000, 1000)
+		image := GenerateImage(d)
 		MakePng(filename, image)
 	}
 }
