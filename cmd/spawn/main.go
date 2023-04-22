@@ -24,7 +24,7 @@ func main() {
 	app.Commands = []*cli.Command{
 		{
 			Name:  "image",
-			Usage: "used to generate dummy image files",
+			Usage: "generate dummy image files",
 			Flags: []cli.Flag{
 				&cli.UintFlag{Name: "width", Aliases: []string{"iw"}, Value: 500},
 				&cli.UintFlag{Name: "height", Aliases: []string{"ih"}, Value: 500},
