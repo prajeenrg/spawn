@@ -9,8 +9,7 @@ import (
 	"github.com/prajeenrg/spawn/pkg/util"
 )
 
-func MakeJpeg(directory, filename string, image image.Image) {
-	util.CreateFolderIfNotExits(directory)
+func MakeJpeg(filename string, image image.Image) {
 	file := util.CreateFile(filename)
 	defer file.Close()
 
@@ -25,9 +24,9 @@ func MakeJpeg(directory, filename string, image image.Image) {
 
 func MakeJpegs(directory, prefix string, d *Dimens, count uint) {
 	util.CreateFolderIfNotExits(directory)
-	for i := uint(0); i < count; i++ {
-		filename := fmt.Sprintf("%s/%s_%dx%d_%07d.jpg", directory, prefix, d.Width, d.Height, i)
+	for i := uint(1); i <= count; i++ {
+		filename := fmt.Sprintf("%s/%s_%dx%d_%d.jpg", directory, prefix, d.Width, d.Height, i)
 		image := GenerateImage(d)
-		MakeJpeg(directory, filename, image)
+		MakeJpeg(filename, image)
 	}
 }

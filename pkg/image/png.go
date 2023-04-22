@@ -9,8 +9,7 @@ import (
 	"github.com/prajeenrg/spawn/pkg/util"
 )
 
-func MakePng(directory, filename string, image image.Image) {
-	util.CreateFolderIfNotExits(directory)
+func MakePng(filename string, image image.Image) {
 	file := util.CreateFile(filename)
 	defer file.Close()
 
@@ -20,9 +19,10 @@ func MakePng(directory, filename string, image image.Image) {
 }
 
 func MakePngs(directory, prefix string, d *Dimens, count uint) {
+	util.CreateFolderIfNotExits(directory)
 	for i := uint(0); i < count; i++ {
 		filename := fmt.Sprintf("%s/%s_%dx%d_%07d.png", directory, prefix, d.Width, d.Height, i)
 		image := GenerateImage(d)
-		MakePng(directory, filename, image)
+		MakePng(filename, image)
 	}
 }

@@ -11,7 +11,7 @@ func CreateFolderIfNotExits(name string) {
 	}
 
 	log.Printf("Creating directory '%s' since not present\n", name)
-	if err := os.Mkdir(name, os.ModeDir); err != nil {
+	if err := os.Mkdir(name, os.ModePerm); err != nil {
 		log.Fatalf("Directory '%s' creation failed\n", name)
 	}
 }
