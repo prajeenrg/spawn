@@ -23,47 +23,57 @@ func main() {
 	app.HideHelpCommand = true
 	app.Copyright = "Copyright 2023 Prajeen Govardhanam"
 	app.Commands = []*cli.Command{
-		{
-			Name:  "image",
-			Usage: "generate dummy image files",
-			Flags: []cli.Flag{
-				&cli.UintFlag{Name: "width", Aliases: []string{"iw"}, Value: 500},
-				&cli.UintFlag{Name: "height", Aliases: []string{"ih"}, Value: 500},
-				&cli.UintFlag{Name: "count", Aliases: []string{"c"}, Value: 1},
-				&cli.StringFlag{Name: "type", Aliases: []string{"t"}, Value: "png"},
-				&cli.StringFlag{Name: "prefix", Aliases: []string{"p"}, Value: "spawn"},
-				&cli.StringFlag{Name: "directory", Aliases: []string{"d"}, Value: "."},
-			},
-			Action: func(ctx *cli.Context) error {
-				prefix := ctx.String("prefix")
-				dir := ctx.String("directory")
-				dimen := &image.Dimens{Width: ctx.Uint("width"), Height: ctx.Uint("height")}
-				imgType := ctx.String("type")
-				count := ctx.Uint("count")
-				switch imgType {
-				case "png":
-					image.MakePngs(dir, prefix, dimen, count)
-				case "jpg", "jpeg":
-					image.MakeJpegs(dir, prefix, dimen, count)
-				default:
-					log.Fatalf("Invalid image mime type '%s' used", imgType)
-				}
-				return nil
-			},
+		fileCmd(),
+		imagesCmd(),
+	}
+}
+
+func imagesCmd() *cli.Command {
+	images := &cli.Command{
+		Name:  "images",
+		Usage: "generate dummy images",
+		Flags: []cli.Flag{
+			&cli.UintFlag{Name: "width", Aliases: []string{"iw"}, Value: 500},
+			&cli.UintFlag{Name: "height", Aliases: []string{"ih"}, Value: 500},
+			&cli.UintFlag{Name: "count", Aliases: []string{"c"}, Value: 1},
+			&cli.StringFlag{Name: "type", Aliases: []string{"t"}, Value: "png"},
+			&cli.StringFlag{Name: "prefix", Aliases: []string{"p"}, Value: "spawn"},
+			&cli.StringFlag{Name: "directory", Aliases: []string{"d"}, Value: "."},
 		},
-		{
-			Name:  "text",
-			Usage: "generate dummy text files",
-			Flags: []cli.Flag{
-				&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Required: true},
-				&cli.UintFlag{Name: "size", Aliases: []string{"s"}, Value: 100},
-			},
-			Action: func(ctx *cli.Context) error {
-				name := ctx.String("file")
-				size := ctx.Uint("size")
-				text.MakeDummyFile(name, size)
-				return nil
-			},
+		Action: func(ctx *cli.Context) error {
+			prefix := ctx.String("prefix")
+			dir := ctx.String("directory")
+			dimen := &image.Dimens{Width: ctx.Uint("width"), Height: ctx.Uint("height")}
+			imgType := ctx.String("type")
+			count := ctx.Uint("count")
+			switch imgType {
+			case "png":
+				image.MakePngs(dir, prefix, dimen, count)
+			case "jpg", "jpeg":
+				image.MakeJpegs(dir, prefix, dimen, count)
+			default:
+				log.Fatalf("Invalid image mime type '%s' used", imgType)
+			}
+			return nil
 		},
 	}
+	return images
+}
+
+func fileCmd() *cli.Command {
+	text := &cli.Command{
+		Name:  "file",
+		Usage: "generate dummy file",
+		Flags: []cli.Flag{
+			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Required: true},
+			&cli.UintFlag{Name: "size", Aliases: []string{"s"}, Value: 100},
+		},
+		Action: func(ctx *cli.Context) error {
+			name := ctx.String("name")
+			size := ctx.Uint("size")
+			text.MakeDummyFile(name, size)
+			return nil
+		},
+	}
+	return text
 }
