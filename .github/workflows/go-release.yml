@@ -35,7 +35,7 @@ jobs:
       env:
         GOOS: ${{ matrix.os }}
         GOARCH: ${{ matrix.arch }}
-        LDFLAGS: "-X 'main.version=${{github.ref_name}}'"
+        LDFLAGS: "-X 'main.version=${{ github.ref_name }}'"
 
     - name: "Zip exe files"
       if: ${{ matrix.os == 'windows' }}
