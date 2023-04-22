@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  build_release:
+  build:
     strategy:
       matrix:
         arch: ["amd64", "arm64"]
@@ -39,15 +39,27 @@ jobs:
       run: |
         mkdir snapshots
         cd bin
-        for $i in $(ls spawn-windows-*); do
+        for i in $(ls spawn-windows-*); do
           mv bin/$i/spawn ../snapshots/$i.exe
         done
-        rm -rf spawn-windows-*
         find . -maxdepth 1 -mindepth 1 -type d -exec tar czvf ../snapshots/{}.tar.gz {} \;
 
+    - name: "Upload Artifact"
+      uses: actions/upload-artifact@v3
+      with:
+        name: assets
+        path: snapshots
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Download Artifact"
+      uses: actions/download-artifact@v3
+      with:
+        name: assets
     - name: Checksum
       run: |
-        cd snapshots
         find . -type f -exec sha256sum {} > sha256sums.txt \;
         cat sha256sums.txt
 
@@ -57,5 +69,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         generate_release_notes: true
-        files: |
-          snapshots/*
+        files: ./*
