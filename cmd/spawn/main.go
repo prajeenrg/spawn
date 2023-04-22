@@ -19,6 +19,7 @@ func main() {
 	app.Authors = []*cli.Author{{Name: "Prajeen Govardhanam", Email: "prajeenrg@gmail.com"}}
 	app.Version = version
 	app.UseShortOptionHandling = true
+	app.Copyright = "Copyright 2023 Prajeen Govardhanam"
 	app.Commands = []*cli.Command{
 		{
 			Name:  "image",
