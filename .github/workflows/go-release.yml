@@ -14,8 +14,11 @@ jobs:
   build:
     strategy:
       matrix:
-        arch: ["amd64", "arm64"]
+        arch: ["amd64", "arm64", "386"]
         os: ["windows", "linux", "darwin"]
+        exclude:
+          - os: "darwin"
+            arch: "386"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -27,37 +30,50 @@ jobs:
 
     - name: Build
       run: |
-        mkdir -p "bin/spawn-$GOOS-$GOARCH"
-        go build -v --ldflags="${LDFLAGS}" -o "bin/spawn-$GOOS-$GOARCH" ./...
+        mkdir bin
+        go build -v --ldflags="${LDFLAGS}" -o bin ./...
       env:
         GOOS: ${{ matrix.os }}
         GOARCH: ${{ matrix.arch }}
         BIN_VERSION: "${{github.ref_name}}"
         LDFLAGS: "-X 'main.version=${BIN_VERSION}'"
-    
-    - name: Package
+
+    - name: "Zip exe files"
+      if: ${{ matrix.os == 'windows' }}
       run: |
-        mkdir snapshots
         cd bin
-        for i in $(ls spawn-windows-*); do
-          mv bin/$i/spawn ../snapshots/$i.exe
-        done
-        find . -maxdepth 1 -mindepth 1 -type d -exec tar czvf ../snapshots/{}.tar.gz {} \;
+        zip "spawn-${{ matrix.os }}-${{ matrix.arch }}.zip" spawn.exe
+        rm spawn.exe
+
+    - name: "Tarball binaries"
+      if: ${{ matrix.os != 'windows' }}
+      run: |
+        cd bin
+        tar czf "spawn-${{ matrix.os }}-${{ matrix.arch }}.tar.gz" spawn
+        rm spawn
 
     - name: "Upload Artifact"
       uses: actions/upload-artifact@v3
       with:
-        name: assets
-        path: snapshots
+        name: "spawn-${{ matrix.os }}-${{ matrix. arch }}"
+        path: bin
 
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: "Download Artifact"
+
+    - name: "Download Artifacts"
       uses: actions/download-artifact@v3
       with:
-        name: assets
+        path: ${{ github.workspace }}
+
+    - name: "Flatten Folders"
+      run: |
+        mv **/* .
+        find -mindepth 1 -maxdepth 1 -type d -exec rmdir {} \;
+        ls -al .
+    
     - name: Checksum
       run: |
         find . -type f -exec sha256sum {} > sha256sums.txt \;
