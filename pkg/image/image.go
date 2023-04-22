@@ -1,10 +1,10 @@
 package image
 
 import (
-	"crypto/rand"
 	"image"
 	"image/color"
-	"log"
+
+	"github.com/prajeenrg/spawn/pkg/util"
 )
 
 type Dimens struct {
@@ -14,12 +14,7 @@ type Dimens struct {
 
 func GenerateImage(d *Dimens) image.Image {
 	img := image.NewNRGBA(image.Rect(0, 0, int(d.Width), int(d.Height)))
-	b := make([]byte, d.Width*d.Height*3)
-	n, err := rand.Read(b)
-
-	if err != nil {
-		log.Fatalln("Random pixel generation failed")
-	}
+	n, b := util.GetRandomBytes(d.Width * d.Height * 3)
 
 	for x := 0; x < int(d.Width); x++ {
 		for y := 0; y < int(d.Height); y++ {
