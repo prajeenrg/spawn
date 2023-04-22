@@ -5,10 +5,13 @@ import (
 	"image"
 	"image/jpeg"
 	"log"
+
+	"github.com/prajeenrg/spawn/pkg/util"
 )
 
-func MakeJpeg(filename string, image image.Image) {
-	file := createFile(filename)
+func MakeJpeg(directory, filename string, image image.Image) {
+	util.CreateFolderIfNotExits(directory)
+	file := util.CreateFile(filename)
 	defer file.Close()
 
 	err := jpeg.Encode(file, image, &jpeg.Options{
@@ -20,10 +23,11 @@ func MakeJpeg(filename string, image image.Image) {
 	}
 }
 
-func MakeJpegs(prefix string, d *Dimens, count uint) {
+func MakeJpegs(directory, prefix string, d *Dimens, count uint) {
+	util.CreateFolderIfNotExits(directory)
 	for i := uint(0); i < count; i++ {
-		filename := fmt.Sprintf("%s_%7d.jpg", prefix, i)
+		filename := fmt.Sprintf("%s/%s_%dx%d_%07d.jpg", directory, prefix, d.Width, d.Height, i)
 		image := GenerateImage(d)
-		MakeJpeg(filename, image)
+		MakeJpeg(directory, filename, image)
 	}
 }

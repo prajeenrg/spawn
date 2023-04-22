@@ -5,25 +5,24 @@ import (
 	"image"
 	"image/color"
 	"log"
-	"os"
 )
 
 type Dimens struct {
-	width  int
-	height int
+	Width  uint
+	Height uint
 }
 
 func GenerateImage(d *Dimens) image.Image {
-	img := image.NewNRGBA(image.Rect(0, 0, d.width, d.height))
-	b := make([]byte, d.width*d.height*3)
+	img := image.NewNRGBA(image.Rect(0, 0, int(d.Width), int(d.Height)))
+	b := make([]byte, d.Width*d.Height*3)
 	n, err := rand.Read(b)
 
 	if err != nil {
 		log.Fatalln("Random pixel generation failed")
 	}
 
-	for x := 0; x < d.width; x++ {
-		for y := 0; y < d.height; y++ {
+	for x := 0; x < int(d.Width); x++ {
+		for y := 0; y < int(d.Height); y++ {
 			img.Set(x, y, color.NRGBA{
 				R: b[n-1],
 				G: b[n-2],
@@ -35,14 +34,4 @@ func GenerateImage(d *Dimens) image.Image {
 	}
 
 	return img
-}
-
-func createFile(filename string) *os.File {
-	file, err := os.Create(filename)
-
-	if err != nil {
-		log.Fatalf("Cannot create file: %s\n", filename)
-	}
-
-	return file
 }
