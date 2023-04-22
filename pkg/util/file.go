@@ -6,13 +6,11 @@ import (
 )
 
 func CreateFolderIfNotExits(name string) {
-	if _, err := os.Stat(name); os.IsExist(err) {
-		return
-	}
-
-	log.Printf("Creating directory '%s' since not present\n", name)
-	if err := os.Mkdir(name, os.ModePerm); err != nil {
-		log.Fatalf("Directory '%s' creation failed\n", name)
+	if _, err := os.Stat(name); os.IsNotExist(err) {
+		log.Printf("Creating directory '%s' since not present\n", name)
+		if err := os.Mkdir(name, os.FileMode(0755)); err != nil {
+			log.Fatalf("Directory '%s' creation failed\n", name)
+		}
 	}
 }
 
