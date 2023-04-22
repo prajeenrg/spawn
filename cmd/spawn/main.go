@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/prajeenrg/spawn/pkg/image"
+	"github.com/prajeenrg/spawn/pkg/text"
 	"github.com/urfave/cli/v2"
 )
 
@@ -47,6 +48,20 @@ func main() {
 				default:
 					log.Fatalf("Invalid image mime type '%s' used", imgType)
 				}
+				return nil
+			},
+		},
+		{
+			Name:  "text",
+			Usage: "generate dummy text files",
+			Flags: []cli.Flag{
+				&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Required: true},
+				&cli.UintFlag{Name: "size", Aliases: []string{"s"}, Value: 100},
+			},
+			Action: func(ctx *cli.Context) error {
+				name := ctx.String("file")
+				size := ctx.Uint("size")
+				text.MakeDummyFile(name, size)
 				return nil
 			},
 		},
