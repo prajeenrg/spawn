@@ -101,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.build-go-bin-exe.ARTNAME }}
-          path: $SNAPSHOTDIR
+          path: ${{ env.SNAPSHOTDIR }}
           if-no-files-found: error
 
   release:
