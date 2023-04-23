@@ -13,7 +13,6 @@ var version = "latest"
 
 func main() {
 	app := cli.NewApp()
-	defer app.Run(os.Args)
 
 	app.Name = "spawn"
 	app.Usage = "generate dummy data files for testing purposes"
@@ -25,6 +24,11 @@ func main() {
 	app.Commands = []*cli.Command{
 		fileCmd(),
 		imagesCmd(),
+	}
+
+	if err := app.Run(os.Args); err != nil {
+		log.Println("Failed initializing cli app")
+		log.Fatalln(err)
 	}
 }
 
