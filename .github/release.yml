@@ -1,0 +1,15 @@
+changelog:
+  categories:
+    - title: 🥳 Features
+      labels:
+        - enhancement
+    - title: 😌 Bug Fixes
+      labels:
+        - bug
+    - title: 🫣 Others
+      labels:
+        - "*"
+      exclude:
+        labels:
+          - bug
+          - enhancement
