@@ -1,9 +1,11 @@
-name: Build
+name: "Go Lint, Build, and Release"
 
 on:
   push:
     tags:
       - "v*"
+    branches:
+      - "*"
 
 env:
   BINDIR: "bin"
@@ -11,12 +13,56 @@ env:
   LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
 
 permissions:
+  pull-requests: read
   contents: write
 
 jobs:
+  go-lint:
+    name: "Lint Go Files"
+    strategy:
+      matrix:
+        os: ["macos", "ubuntu", "windows"]
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - name: "Checkout Repo"
+        uses: actions/checkout@v3
+
+      - name: "Setup Go"
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: "Golang CI Lint"
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          only-new-issues: true
+          args: --timeout 5m
+
+  go-compile-check:
+    name: "Run compilation check on  Go files"
+    needs: go-lint
+    if: ${{ github.ref_type == 'branch' }}
+    strategy:
+      matrix:
+        os: ["macos", "ubuntu", "windows"]
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - name: "Checkout Repo"
+        uses: actions/checkout@v3
+
+      - name: "Setup Go"
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build
+        run: go build -v ./...
+
   go-build:
     name: "Build Go executables"
     needs: go-lint
+    if: ${{ github.ref_type == 'tag' }}
     strategy:
       matrix:
         os: ["macos", "ubuntu", "windows"]
@@ -63,6 +109,8 @@ jobs:
 
   release:
     name: "Release Artifacts"
+    needs: go-build
+    if: ${{ github.ref_type == 'tag' }}
     runs-on: ubuntu-latest
     steps:
       - name: "Download Artifacts"
