@@ -4,13 +4,14 @@ on:
   push:
     tags:
       - "v*"
-    branches:
-      - "master"
 
 env:
   BINDIR: "bin"
   SNAPSHOTDIR: "snapshots"
   LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
+
+permissions:
+  contents: write
 
 jobs:
   go-build:
@@ -59,3 +60,34 @@ jobs:
           name: ${{ steps.build-go-bin-exe.ARTNAME }}
           path: $SNAPSHOTDIR
           if-no-files-found: error
+
+  release:
+    name: "Release Artifacts"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Download Artifacts"
+        uses: actions/download-artifact@v3
+        with:
+          path: ${{ github.workspace }}
+
+      - name: "Flatten Folders"
+        run: |
+          mv **/* .
+          find -mindepth 1 -maxdepth 1 -type d -exec rmdir {} \;
+          echo "🔽 Results from flattening"
+          ls -al .
+    
+      - name: "Generate SHA256 checksum for assets"
+        run: |
+          find . -type f -exec sha256sum {} > checksums.txt \;
+          echo "🔽 Generated checksums"
+          cat sha256sums.txt
+
+      - name: "Create release and upload assets"
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: ./*
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}
