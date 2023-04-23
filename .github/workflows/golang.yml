@@ -7,11 +7,6 @@ on:
     branches:
       - "*"
 
-env:
-  BINDIR: "bin"
-  SNAPSHOTDIR: "snapshots"
-  LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
-
 permissions:
   pull-requests: read
   contents: write
@@ -65,6 +60,10 @@ jobs:
           - os: "darwin"
             arch: "386"
     runs-on: ubuntu-latest
+    env:
+      ARTNAME: ${{ format('spawn_{0}_{1}_{2}', github.ref_name, matrix.os, matrix.arch)}}
+      BINDIR: "bin"
+      SNAPSHOTDIR: "snapshots"
     steps:
       - name: "Checkout Repo"
         uses: actions/checkout@v3
@@ -79,28 +78,27 @@ jobs:
         run: |
           mkdir -p ${{ env.BINDIR }}
           go build -v --ldflags="${{ env.LDFLAGS }}" -o ${{ env.BINDIR }} ./...
-          echo "ARTNAME=${{ env.ARTNAME }}" >> "$GITHUB_OUTPUT"
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-          ARTNAME: ${{ format('spawn_{0}_{1}_{2}', github.ref_name, matrix.os, matrix.arch)}}
+          LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
 
       - name: "Copy Windows executables to snapshots"
         if: ${{ startsWith(matrix.os, 'windows') }}
         run: |
           mkdir -p ${{ env.SNAPSHOTDIR }}
-          cp ${{ env.BINDIR }}/spawn.exe ${{ env.SNAPSHOTDIR }}/${{ steps.build-go-bin-exe.ARTNAME }}.exe
+          cp ${{ env.BINDIR }}/spawn.exe ${{ env.SNAPSHOTDIR }}/${{ env.ARTNAME }}.exe
 
       - name: "Compress binaries to tarballs"
         if: ${{ !startsWith(matrix.os, 'windows') }}
         run: |
           mkdir -p ${{ env.SNAPSHOTDIR }}
-          tar acf ${{ env.SNAPSHOTDIR }}/${{ steps.build-go-bin-exe.ARTNAME }}.tar.gz -C $BINDIR .
+          tar acf ${{ env.SNAPSHOTDIR }}/${{ env.ARTNAME }}.tar.gz -C $BINDIR .
 
       - name: "Upload ${{ matrix.os }} (${{ matrix.arch }}) executables"
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ steps.build-go-bin-exe.ARTNAME }}
+          name: ${{ env.ARTNAME }}
           path: ${{ env.SNAPSHOTDIR }}
           if-no-files-found: error
 
