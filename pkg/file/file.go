@@ -1,4 +1,4 @@
-package text
+package file
 
 import (
 	"log"

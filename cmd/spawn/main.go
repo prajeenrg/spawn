@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/prajeenrg/spawn/pkg/file"
 	"github.com/prajeenrg/spawn/pkg/image"
-	"github.com/prajeenrg/spawn/pkg/text"
 	"github.com/urfave/cli/v2"
 )
 
@@ -71,7 +71,7 @@ func fileCmd() *cli.Command {
 		Action: func(ctx *cli.Context) error {
 			name := ctx.String("name")
 			size := ctx.Uint("size")
-			text.MakeDummyFile(name, size)
+			file.MakeDummyFile(name, size)
 			return nil
 		},
 	}
