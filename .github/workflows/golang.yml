@@ -19,10 +19,7 @@ permissions:
 jobs:
   go-lint:
     name: "Lint Go Files"
-    strategy:
-      matrix:
-        os: ["macos", "ubuntu", "windows"]
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repo"
         uses: actions/checkout@v3
@@ -35,18 +32,15 @@ jobs:
       - name: "Golang CI Lint"
         uses: golangci/golangci-lint-action@v3
         with:
-          version: latest
+          version: v1.52.2
           only-new-issues: true
-          args: --timeout 5m
+          args: --timeout 3m
 
   go-compile-check:
     name: "Run compilation check on  Go files"
     needs: go-lint
     if: ${{ github.ref_type == 'branch' }}
-    strategy:
-      matrix:
-        os: ["macos", "ubuntu", "windows"]
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repo"
         uses: actions/checkout@v3
@@ -65,12 +59,12 @@ jobs:
     if: ${{ github.ref_type == 'tag' }}
     strategy:
       matrix:
-        os: ["macos", "ubuntu", "windows"]
+        os: ["darwin", "linux", "windows"]
         arch: ["amd64", "arm64", "386"]
         exclude:
-          - os: "macos"
+          - os: "darwin"
             arch: "386"
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repo"
         uses: actions/checkout@v3
@@ -84,21 +78,23 @@ jobs:
         id: build-go-bin-exe
         run: |
           mkdir -p ${BINDIR}
-          go build -v -ldflags $LDFLAGS -o $BINDIR ./...
-          echo "ARTNAME=${{ format('spawn_{0}_{1}_{2}', github.ref_name, '$GOOS', matrix.arch)}}" >> "$GITHUBOUTPUT"
+          go build -v --ldflags="$LDFLAGS" -o $BINDIR ./...
+          echo "ARTNAME=${{ format('spawn_{0}_{1}_{2}', github.ref_name, matrix.os, matrix.arch)}}" >> "$GITHUBOUTPUT"
         env:
+          GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-
-      - name: "Create snapshots directory"
-        run: mkdir -p $SNAPSHOTDIR
 
       - name: "Copy Windows executables to snapshots"
         if: ${{ startsWith(matrix.os, 'windows') }}
-        run: cp ${BINDIR}/spawn.exe $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.exe
+        run: |
+          mkdir -p $SNAPSHOTDIR
+          cp ${BINDIR}/spawn.exe $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.exe
 
       - name: "Compress binaries to tarballs"
         if: ${{ !startsWith(matrix.os, 'windows') }}
-        run: tar avf $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.tar.gz -C $BINDIR .
+        run: |
+          mkdir -p $SNAPSHOTDIR
+          tar avf $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.tar.gz -C $BINDIR .
 
       - name: "Upload ${{ matrix.os }} (${{ matrix.arch }}) executables"
         uses: actions/upload-artifact@v3
