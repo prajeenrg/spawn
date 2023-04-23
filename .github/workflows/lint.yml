@@ -1,0 +1,39 @@
+name: Lint
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - "*"
+  pull_request:
+    types:
+      - "opened"
+    branches:
+      - "master"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  go-lint:
+    name: "Lint Go Files"
+    strategy:
+      matrix:
+        os: ["macos", "ubuntu", "windows"]
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - name: "Checkout Repo"
+        uses: actions/checkout@v3
+
+      - name: "Setup Go"
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: "Golang CI Lint"
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          only-new-issues: true

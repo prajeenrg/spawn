@@ -1,0 +1,61 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - "master"
+
+env:
+  BINDIR: "bin"
+  SNAPSHOTDIR: "snapshots"
+  LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
+
+jobs:
+  go-build:
+    name: "Build Go executables"
+    needs: go-lint
+    strategy:
+      matrix:
+        os: ["macos", "ubuntu", "windows"]
+        arch: ["amd64", "arm64", "386"]
+        exclude:
+          - os: "macos"
+            arch: "386"
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - name: "Checkout Repo"
+        uses: actions/checkout@v3
+
+      - name: "Setup Go"
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: "Build ${{ matrix.os }} (${{ matrix.arch }}) executables"
+        id: build-go-bin-exe
+        run: |
+          mkdir -p ${BINDIR}
+          go build -v -ldflags $LDFLAGS -o $BINDIR ./...
+          echo "ARTNAME=${{ format('spawn_{0}_{1}_{2}', github.ref_name, '$GOOS', matrix.arch)}}" >> "$GITHUBOUTPUT"
+        env:
+          GOARCH: ${{ matrix.arch }}
+
+      - name: "Create snapshots directory"
+        run: mkdir -p $SNAPSHOTDIR
+
+      - name: "Copy Windows executables to snapshots"
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        run: cp ${BINDIR}/spawn.exe $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.exe
+
+      - name: "Compress binaries to tarballs"
+        if: ${{ !startsWith(matrix.os, 'windows') }}
+        run: tar avf $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.tar.gz -C $BINDIR .
+
+      - name: "Upload ${{ matrix.os }} (${{ matrix.arch }}) executables"
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build-go-bin-exe.ARTNAME }}
+          path: $SNAPSHOTDIR
+          if-no-files-found: error
