@@ -95,7 +95,7 @@ jobs:
         if: ${{ !startsWith(matrix.os, 'windows') }}
         run: |
           mkdir -p $SNAPSHOTDIR
-          tar avf $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.tar.gz -C $BINDIR .
+          tar acf $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.tar.gz -C $BINDIR .
 
       - name: "Upload ${{ matrix.os }} (${{ matrix.arch }}) executables"
         uses: actions/upload-artifact@v3
