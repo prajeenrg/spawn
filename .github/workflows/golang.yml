@@ -122,9 +122,11 @@ jobs:
     
       - name: "Generate SHA256 checksum for assets"
         run: |
-          find . -type f -exec sha256sum {} > checksums.txt \;
+          find . -type f -exec sha256sum {} > ${{ env.CHECKSUM_FILE }} \;
           echo "🔽 Generated checksums"
-          cat sha256sums.txt
+          cat ${{ env.CHECKSUM_FILE }}
+        env:
+          CHECKSUM_FILE: "checksums.txt"
 
       - name: "Create release and upload assets"
         uses: softprops/action-gh-release@v1
