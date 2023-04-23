@@ -1,4 +1,4 @@
-name: "Go Lint, Build, and Release"
+name: "Go: Lint, Build, and Release"
 
 on:
   push:
@@ -101,7 +101,7 @@ jobs:
         run: tar avf $SNAPSHOTDIR/${{ steps.build-go-bin-exe.ARTNAME }}.tar.gz -C $BINDIR .
 
       - name: "Upload ${{ matrix.os }} (${{ matrix.arch }}) executables"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.build-go-bin-exe.ARTNAME }}
           path: $SNAPSHOTDIR
