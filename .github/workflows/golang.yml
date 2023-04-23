@@ -79,10 +79,11 @@ jobs:
         run: |
           mkdir -p ${BINDIR}
           go build -v --ldflags="$LDFLAGS" -o $BINDIR ./...
-          echo "ARTNAME=${{ format('spawn_{0}_{1}_{2}', github.ref_name, matrix.os, matrix.arch)}}" >> "$GITHUBOUTPUT"
+          echo "ARTNAME=$ARTNAME" >> "$GITHUB_OUTPUT"
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
+          ARTNAME: ${{ format('spawn_{0}_{1}_{2}', github.ref_name, matrix.os, matrix.arch)}}
 
       - name: "Copy Windows executables to snapshots"
         if: ${{ startsWith(matrix.os, 'windows') }}
