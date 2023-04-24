@@ -72,6 +72,8 @@ func imageCmd() *cli.Command {
 					q = 100
 				}
 				generator = &image.WebpGenerator{Quality: float32(q)}
+			case "heic":
+				generator = &image.HeifGenerator{}
 			default:
 				log.Fatalf("Invalid image mime type '%s' used", imgType)
 			}
