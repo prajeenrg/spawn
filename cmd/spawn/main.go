@@ -23,7 +23,7 @@ func main() {
 	app.Copyright = "Copyright 2023 Prajeen Govardhanam"
 	app.Commands = []*cli.Command{
 		fileCmd(),
-		imagesCmd(),
+		imageCmd(),
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -32,8 +32,8 @@ func main() {
 	}
 }
 
-func imagesCmd() *cli.Command {
-	images := &cli.Command{
+func imageCmd() *cli.Command {
+	image := &cli.Command{
 		Name:  "image",
 		Usage: "generate dummy images",
 		Flags: []cli.Flag{
@@ -77,7 +77,7 @@ func imagesCmd() *cli.Command {
 			return nil
 		},
 	}
-	return images
+	return image
 }
 
 func fileCmd() *cli.Command {
