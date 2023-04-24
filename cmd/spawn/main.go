@@ -23,7 +23,7 @@ func main() {
 	app.Copyright = "Copyright 2023 Prajeen Govardhanam"
 	app.Commands = []*cli.Command{
 		fileCmd(),
-		imagesCmd(),
+		imageCmd(),
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -32,9 +32,9 @@ func main() {
 	}
 }
 
-func imagesCmd() *cli.Command {
-	images := &cli.Command{
-		Name:  "images",
+func imageCmd() *cli.Command {
+	image := &cli.Command{
+		Name:  "image",
 		Usage: "generate dummy images",
 		Flags: []cli.Flag{
 			&cli.UintFlag{Name: "width", Aliases: []string{"iw"}, Value: 500},
@@ -42,26 +42,47 @@ func imagesCmd() *cli.Command {
 			&cli.UintFlag{Name: "count", Aliases: []string{"c"}, Value: 1},
 			&cli.StringFlag{Name: "type", Aliases: []string{"t"}, Value: "png"},
 			&cli.StringFlag{Name: "prefix", Aliases: []string{"p"}, Value: "spawn"},
-			&cli.StringFlag{Name: "directory", Aliases: []string{"d"}, Value: "."},
+			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Value: "spawn"},
+			&cli.StringFlag{Name: "directory", Aliases: []string{"d"}},
+			&cli.UintFlag{Name: "quality", Aliases: []string{"q"}, Value: 76},
 		},
 		Action: func(ctx *cli.Context) error {
-			prefix := ctx.String("prefix")
-			dir := ctx.String("directory")
+			count := ctx.Uint("count")
+			if count == 0 {
+				return nil
+			}
+
 			dimen := &image.Dimens{Width: ctx.Uint("width"), Height: ctx.Uint("height")}
 			imgType := ctx.String("type")
-			count := ctx.Uint("count")
+
+			var generator image.Generator
+
 			switch imgType {
 			case "png":
-				image.MakePngs(dir, prefix, dimen, count)
+				generator = &image.PngGenerator{}
 			case "jpg", "jpeg":
-				image.MakeJpegs(dir, prefix, dimen, count)
+				q := ctx.Uint("quality")
+				if q > 100 {
+					q = 100
+				}
+				generator = &image.JpegGenerator{Quality: int(q)}
 			default:
 				log.Fatalf("Invalid image mime type '%s' used", imgType)
 			}
+
+			if count == 1 {
+				name := ctx.String("name")
+				generator.SingleImage(name, dimen)
+			} else {
+				prefix := ctx.String("prefix")
+				dir := ctx.String("directory")
+				generator.MultipleImages(dir, prefix, dimen, count)
+			}
+
 			return nil
 		},
 	}
-	return images
+	return image
 }
 
 func fileCmd() *cli.Command {

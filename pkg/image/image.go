@@ -12,7 +12,12 @@ type Dimens struct {
 	Height uint
 }
 
-func GenerateImage(d *Dimens) image.Image {
+type Generator interface {
+	SingleImage(string, *Dimens)
+	MultipleImages(string, string, *Dimens, uint)
+}
+
+func generateImage(d *Dimens) image.Image {
 	img := image.NewNRGBA(image.Rect(0, 0, int(d.Width), int(d.Height)))
 	n, b := util.GetRandomBytes(d.Width * d.Height * 3)
 
