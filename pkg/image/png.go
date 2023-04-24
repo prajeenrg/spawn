@@ -11,6 +11,10 @@ import (
 type PngGenerator struct{}
 
 func (p *PngGenerator) SingleImage(filename string, d *Dimens) {
+	if !util.CheckExtension(filename, "png") {
+		filename = fmt.Sprintf("%s.png", filename)
+	}
+
 	file := util.CreateFile(filename)
 	defer file.Close()
 

@@ -13,6 +13,10 @@ type JpegGenerator struct {
 }
 
 func (j *JpegGenerator) SingleImage(filename string, d *Dimens) {
+	if !util.CheckExtension(filename, "jpg") || !util.CheckExtension(filename, "jpeg") {
+		filename = fmt.Sprintf("%s.jpg", filename)
+	}
+
 	file := util.CreateFile(filename)
 	defer file.Close()
 

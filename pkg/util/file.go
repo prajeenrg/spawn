@@ -1,9 +1,15 @@
 package util
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"strings"
 )
+
+func CheckExtension(name, ext string) bool {
+	return strings.HasSuffix(name, fmt.Sprintf(".%s", ext))
+}
 
 func CreateFolderIfNotExits(name string) {
 	if len(name) == 0 {
