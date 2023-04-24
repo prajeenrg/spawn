@@ -67,7 +67,7 @@ jobs:
     strategy:
       matrix:
         os: ["darwin", "linux", "windows"]
-        arch: ["amd64", "arm64", "386"]
+        arch: ["amd64", "386"]
         exclude:
           - os: "darwin"
             arch: "386"
