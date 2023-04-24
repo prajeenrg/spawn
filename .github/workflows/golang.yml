@@ -73,7 +73,7 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: "Build ${{ matrix.os }} (${{ matrix.arch }}) executables"
+      - name: "🏗️ building ${{ matrix.os }} (${{ matrix.arch }}) executables"
         id: build-go-bin-exe
         run: |
           mkdir -p ${{ env.BINDIR }}
@@ -83,19 +83,22 @@ jobs:
           GOARCH: ${{ matrix.arch }}
           LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
 
-      - name: "Copy Windows executables to snapshots"
+      - name: "📦 archiving binaries to snapshots"
         if: ${{ startsWith(matrix.os, 'windows') }}
         run: |
           mkdir -p ${{ env.SNAPSHOTDIR }}
-          cp ${{ env.BINDIR }}/spawn.exe ${{ env.SNAPSHOTDIR }}/${{ env.ARTNAME }}.exe
+          if [ ${{ startsWith(matrix.os, 'windows') }} ]; then
+            echo "zipping up windows executables"
+            cd ${{ env.BINDIR }}
+            zip spawn.zip spawn.exe
+            cd -
+            cp ${{ env.BINDIR }}/spawn.zip ${{ env.SNAPSHOTDIR }}/${{ env.ARTNAME }}.zip
+          else
+            echo "tarball creation from binaries"
+            tar acf ${{ env.SNAPSHOTDIR }}/${{ env.ARTNAME }}.tar.gz -C $BINDIR .
+          fi 
 
-      - name: "Compress binaries to tarballs"
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-        run: |
-          mkdir -p ${{ env.SNAPSHOTDIR }}
-          tar acf ${{ env.SNAPSHOTDIR }}/${{ env.ARTNAME }}.tar.gz -C $BINDIR .
-
-      - name: "Upload ${{ matrix.os }} (${{ matrix.arch }}) executables"
+      - name: "⬆️ uploading ${{ matrix.os }} (${{ matrix.arch }}) archives"
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTNAME }}
