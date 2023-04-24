@@ -102,10 +102,9 @@ jobs:
           LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
 
       - name: "📦 archiving binaries to snapshots"
-        if: ${{ startsWith(matrix.os, 'windows') }}
         run: |
           mkdir -p ${{ env.SNAPSHOTDIR }}
-          if [ ${{ startsWith(matrix.os, 'windows') }} ]; then
+          if ${{ startsWith(matrix.os, 'windows') }}; then
             echo "zipping up windows executables"
             cd ${{ env.BINDIR }}
             zip spawn.zip spawn.exe
