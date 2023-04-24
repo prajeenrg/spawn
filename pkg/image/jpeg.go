@@ -35,8 +35,8 @@ func (j *JpegGenerator) MultipleImages(directory, prefix string, d *Dimens, coun
 	util.CreateFolderIfNotExits(directory)
 	bar := util.GetProgressBar(count, "Generating JPEG files")
 	for i := uint(1); i <= count; i++ {
-		util.Increment(&bar)
 		filename := fmt.Sprintf("%s/%s_%dx%d_%d.jpg", directory, prefix, d.Width, d.Height, i)
 		j.SingleImage(filename, d)
+		util.Increment(&bar)
 	}
 }

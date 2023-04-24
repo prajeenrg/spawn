@@ -29,8 +29,8 @@ func (p *PngGenerator) MultipleImages(directory, prefix string, d *Dimens, count
 	util.CreateFolderIfNotExits(directory)
 	bar := util.GetProgressBar(count, "Generating PNG files")
 	for i := uint(1); i <= count; i++ {
-		util.Increment(&bar)
 		filename := fmt.Sprintf("%s/%s_%dx%d_%d.png", directory, prefix, d.Width, d.Height, i)
 		p.SingleImage(filename, d)
+		util.Increment(&bar)
 	}
 }
