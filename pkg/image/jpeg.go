@@ -12,12 +12,12 @@ type JpegGenerator struct {
 	quality int
 }
 
-func (j *JpegGenerator) SingleImage(filename string, d *Dimens) {
-	if !util.CheckExtension(filename, "jpg") || !util.CheckExtension(filename, "jpeg") {
-		filename = fmt.Sprintf("%s.jpg", filename)
+func (j *JpegGenerator) SingleImage(name string, d *Dimens) {
+	if !util.CheckExtension(name, "jpg") || !util.CheckExtension(name, "jpeg") {
+		name = fmt.Sprintf("%s.jpg", name)
 	}
 
-	file := util.CreateFile(filename)
+	file := util.CreateFile(name)
 	defer file.Close()
 
 	image := generateImage(d)
