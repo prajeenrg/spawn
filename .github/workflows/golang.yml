@@ -66,7 +66,7 @@ jobs:
     if: ${{ github.ref_type == 'tag' }}
     strategy:
       matrix:
-        os: ["darwin", "linux", "windows"]
+        os: ["darwin", "linux"]
         arch: ["amd64", "386"]
         exclude:
           - os: "darwin"
