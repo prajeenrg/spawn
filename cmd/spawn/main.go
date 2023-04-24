@@ -71,7 +71,7 @@ func imageCmd() *cli.Command {
 				if q > 100 {
 					q = 100
 				}
-				generator = &image.WebpGenerator{}
+				generator = &image.WebpGenerator{Quality: float32(q)}
 			default:
 				log.Fatalf("Invalid image mime type '%s' used", imgType)
 			}

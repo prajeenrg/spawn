@@ -9,10 +9,12 @@ import (
 	"github.com/prajeenrg/spawn/pkg/util"
 )
 
-type WebpGenerator struct{}
+type WebpGenerator struct {
+	Quality float32
+}
 
 func (w *WebpGenerator) generateOptions() *encoder.Options {
-	opts, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+	opts, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, w.Quality)
 	if err != nil {
 		log.Fatalln("WebP encoder options failed")
 	}
