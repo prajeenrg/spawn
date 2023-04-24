@@ -2,19 +2,24 @@ package image
 
 import (
 	"fmt"
-	"image"
 	"image/jpeg"
 	"log"
 
 	"github.com/prajeenrg/spawn/pkg/util"
 )
 
-func MakeJpeg(filename string, image image.Image) {
+type JpegGenerator struct {
+	quality int
+}
+
+func (j *JpegGenerator) SingleImage(filename string, d *Dimens) {
 	file := util.CreateFile(filename)
 	defer file.Close()
 
+	image := generateImage(d)
+
 	err := jpeg.Encode(file, image, &jpeg.Options{
-		Quality: 76,
+		Quality: j.quality,
 	})
 
 	if err != nil {
@@ -22,13 +27,12 @@ func MakeJpeg(filename string, image image.Image) {
 	}
 }
 
-func MakeJpegs(directory, prefix string, d *Dimens, count uint) {
+func (j *JpegGenerator) MultipleImages(directory, prefix string, d *Dimens, count uint) {
 	util.CreateFolderIfNotExits(directory)
 	bar := util.GetProgressBar(count, "Generating JPEG files")
 	for i := uint(1); i <= count; i++ {
 		util.Increment(&bar)
 		filename := fmt.Sprintf("%s/%s_%dx%d_%d.jpg", directory, prefix, d.Width, d.Height, i)
-		image := GenerateImage(d)
-		MakeJpeg(filename, image)
+		j.SingleImage(filename, d)
 	}
 }

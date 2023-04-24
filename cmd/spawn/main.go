@@ -42,22 +42,38 @@ func imagesCmd() *cli.Command {
 			&cli.UintFlag{Name: "count", Aliases: []string{"c"}, Value: 1},
 			&cli.StringFlag{Name: "type", Aliases: []string{"t"}, Value: "png"},
 			&cli.StringFlag{Name: "prefix", Aliases: []string{"p"}, Value: "spawn"},
+			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Value: "spawn"},
 			&cli.StringFlag{Name: "directory", Aliases: []string{"d"}, Value: "."},
 		},
 		Action: func(ctx *cli.Context) error {
-			prefix := ctx.String("prefix")
-			dir := ctx.String("directory")
+			count := ctx.Uint("count")
+			if count == 0 {
+				return nil
+			}
+
 			dimen := &image.Dimens{Width: ctx.Uint("width"), Height: ctx.Uint("height")}
 			imgType := ctx.String("type")
-			count := ctx.Uint("count")
+
+			var generator image.Generator
+
 			switch imgType {
 			case "png":
-				image.MakePngs(dir, prefix, dimen, count)
+				generator = &image.PngGenerator{}
 			case "jpg", "jpeg":
-				image.MakeJpegs(dir, prefix, dimen, count)
+				generator = &image.JpegGenerator{}
 			default:
 				log.Fatalf("Invalid image mime type '%s' used", imgType)
 			}
+
+			if count == 1 {
+				name := ctx.String("name")
+				generator.SingleImage(name, dimen)
+			} else {
+				prefix := ctx.String("prefix")
+				dir := ctx.String("directory")
+				generator.MultipleImages(dir, prefix, dimen, count)
+			}
+
 			return nil
 		},
 	}
