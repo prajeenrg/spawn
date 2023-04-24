@@ -9,7 +9,7 @@ import (
 )
 
 type JpegGenerator struct {
-	quality int
+	Quality int
 }
 
 func (j *JpegGenerator) SingleImage(name string, d *Dimens) {
@@ -23,7 +23,7 @@ func (j *JpegGenerator) SingleImage(name string, d *Dimens) {
 	image := generateImage(d)
 
 	err := jpeg.Encode(file, image, &jpeg.Options{
-		Quality: j.quality,
+		Quality: j.Quality,
 	})
 
 	if err != nil {

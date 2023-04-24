@@ -44,6 +44,7 @@ func imageCmd() *cli.Command {
 			&cli.StringFlag{Name: "prefix", Aliases: []string{"p"}, Value: "spawn"},
 			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Value: "spawn"},
 			&cli.StringFlag{Name: "directory", Aliases: []string{"d"}},
+			&cli.UintFlag{Name: "quality", Aliases: []string{"q"}, Value: 76},
 		},
 		Action: func(ctx *cli.Context) error {
 			count := ctx.Uint("count")
@@ -60,7 +61,11 @@ func imageCmd() *cli.Command {
 			case "png":
 				generator = &image.PngGenerator{}
 			case "jpg", "jpeg":
-				generator = &image.JpegGenerator{}
+				q := ctx.Uint("quality")
+				if q > 100 {
+					q = 100
+				}
+				generator = &image.JpegGenerator{Quality: int(q)}
 			default:
 				log.Fatalf("Invalid image mime type '%s' used", imgType)
 			}
