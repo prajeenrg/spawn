@@ -13,8 +13,10 @@ type HeifGenerator struct {
 }
 
 func (h *HeifGenerator) SingleImage(name string, d *Dimens) {
-	image := generateImage(d)
-	ctx, err := heif.EncodeFromImage(image, heif.CompressionHEVC, h.Quality, heif.LosslessModeEnabled, heif.LoggingLevelFull)
+	nrgba := generateImage(d)
+	image := convertNrgbaToRgba(nrgba)
+
+	ctx, err := heif.EncodeFromImage(image, heif.CompressionHEVC, h.Quality, heif.LosslessModeEnabled, heif.LoggingLevelNone)
 
 	if err != nil {
 		log.Fatalln("Cannot create heif file from image")
