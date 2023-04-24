@@ -12,7 +12,7 @@ import (
 type WebpGenerator struct{}
 
 func (w *WebpGenerator) generateOptions() *encoder.Options {
-	opts, err := encoder.NewLosslessEncoderOptions(encoder.PresetDefault, 75)
+	opts, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
 	if err != nil {
 		log.Fatalln("WebP encoder options failed")
 	}
