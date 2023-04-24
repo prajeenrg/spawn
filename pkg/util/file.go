@@ -6,6 +6,9 @@ import (
 )
 
 func CreateFolderIfNotExits(name string) {
+	if len(name) == 0 {
+		name = "."
+	}
 	if _, err := os.Stat(name); os.IsNotExist(err) {
 		log.Printf("Creating directory '%s' since not present\n", name)
 		if err := os.Mkdir(name, os.FileMode(0755)); err != nil {

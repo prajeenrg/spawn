@@ -34,7 +34,7 @@ func main() {
 
 func imagesCmd() *cli.Command {
 	images := &cli.Command{
-		Name:  "images",
+		Name:  "image",
 		Usage: "generate dummy images",
 		Flags: []cli.Flag{
 			&cli.UintFlag{Name: "width", Aliases: []string{"iw"}, Value: 500},
@@ -43,7 +43,7 @@ func imagesCmd() *cli.Command {
 			&cli.StringFlag{Name: "type", Aliases: []string{"t"}, Value: "png"},
 			&cli.StringFlag{Name: "prefix", Aliases: []string{"p"}, Value: "spawn"},
 			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Value: "spawn"},
-			&cli.StringFlag{Name: "directory", Aliases: []string{"d"}, Value: "."},
+			&cli.StringFlag{Name: "directory", Aliases: []string{"d"}},
 		},
 		Action: func(ctx *cli.Context) error {
 			count := ctx.Uint("count")
