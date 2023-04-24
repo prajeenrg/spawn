@@ -54,6 +54,10 @@ func imageCmd() *cli.Command {
 
 			dimen := &image.Dimens{Width: ctx.Uint("width"), Height: ctx.Uint("height")}
 			imgType := ctx.String("type")
+			q := ctx.Uint("quality")
+			if q > 100 {
+				q = 100
+			}
 
 			var generator image.Generator
 
@@ -61,17 +65,11 @@ func imageCmd() *cli.Command {
 			case "png":
 				generator = &image.PngGenerator{}
 			case "jpg", "jpeg":
-				q := ctx.Uint("quality")
-				if q > 100 {
-					q = 100
-				}
 				generator = &image.JpegGenerator{Quality: int(q)}
 			case "webp":
-				q := ctx.Uint("quality")
-				if q > 100 {
-					q = 100
-				}
 				generator = &image.WebpGenerator{Quality: float32(q)}
+			case "heic":
+				generator = &image.HeifGenerator{Quality: int(q)}
 			default:
 				log.Fatalf("Invalid image mime type '%s' used", imgType)
 			}
