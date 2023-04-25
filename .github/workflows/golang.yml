@@ -1,9 +1,7 @@
-name: "Go: Lint, Build, and Release"
+name: "Go: Lint and Compile"
 
 on:
   push:
-    tags:
-      - "v*"
     branches:
       - "*"
 
@@ -12,8 +10,8 @@ permissions:
   contents: write
 
 jobs:
-  go-lint:
-    name: "Lint Go Files"
+  go-lint-compile:
+    name: "Run compilation check on  Go files"
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repo"
@@ -37,116 +35,5 @@ jobs:
           only-new-issues: true
           args: --timeout 3m
 
-  go-compile-check:
-    name: "Run compilation check on  Go files"
-    needs: go-lint
-    if: ${{ github.ref_type == 'branch' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Checkout Repo"
-        uses: actions/checkout@v3
-
-      - name: "Install dependent libraries"
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: libwebp-dev
-          version: 1.0
-
-      - name: "Setup Go"
-        uses: actions/setup-go@v4
-        with:
-          go-version-file: "go.mod"
-
       - name: Build
         run: go build -v ./...
-
-  go-build:
-    name: "Build Go executables"
-    needs: go-lint
-    if: ${{ github.ref_type == 'tag' }}
-    strategy:
-      matrix:
-        os: ["linux"]
-        arch: ["amd64"]
-        exclude:
-          - os: "darwin"
-            arch: "386"
-    runs-on: ubuntu-latest
-    env:
-      ARTNAME: ${{ format('spawn_{0}_{1}_{2}', github.ref_name, matrix.os, matrix.arch)}}
-      BINDIR: "bin"
-      SNAPSHOTDIR: "snapshots"
-    steps:
-      - name: "Checkout Repo"
-        uses: actions/checkout@v3
-
-      - name: "Setup Go"
-        uses: actions/setup-go@v4
-        with:
-          go-version-file: "go.mod"
-
-      - name: "🏗️ building ${{ matrix.os }} (${{ matrix.arch }}) executables"
-        id: build-go-bin-exe
-        run: |
-          mkdir -p ${{ env.BINDIR }}
-          go build -v --ldflags="${{ env.LDFLAGS }}" -o ${{ env.BINDIR }} ./...
-        env:
-          GOOS: ${{ matrix.os }}
-          GOARCH: ${{ matrix.arch }}
-          LDFLAGS: "-w -s -X 'main.version=${{ github.ref_name }}'"
-
-      - name: "📦 archiving binaries to snapshots"
-        run: |
-          mkdir -p ${{ env.SNAPSHOTDIR }}
-          if ${{ startsWith(matrix.os, 'windows') }}; then
-            echo "zipping up windows executables"
-            cd ${{ env.BINDIR }}
-            zip spawn.zip spawn.exe
-            cd -
-            cp ${{ env.BINDIR }}/spawn.zip ${{ env.SNAPSHOTDIR }}/${{ env.ARTNAME }}.zip
-          else
-            echo "tarball creation from binaries"
-            tar acf ${{ env.SNAPSHOTDIR }}/${{ env.ARTNAME }}.tar.gz -C $BINDIR .
-          fi 
-
-      - name: "⬆️ uploading ${{ matrix.os }} (${{ matrix.arch }}) archives"
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.ARTNAME }}
-          path: ${{ env.SNAPSHOTDIR }}
-          if-no-files-found: error
-
-  release:
-    name: "Release Artifacts"
-    needs: go-build
-    if: ${{ github.ref_type == 'tag' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Download Artifacts"
-        uses: actions/download-artifact@v3
-        with:
-          path: ${{ github.workspace }}
-
-      - name: "Flatten Folders"
-        run: |
-          mv **/* .
-          find -mindepth 1 -maxdepth 1 -type d -exec rmdir {} \;
-          echo "🔽 Results from flattening"
-          ls -al .
-    
-      - name: "Generate SHA256 checksum for assets"
-        run: |
-          find . -type f -exec sha256sum {} > ${{ env.CHECKSUM_FILE }} \;
-          echo "🔽 Generated checksums"
-          cat ${{ env.CHECKSUM_FILE }}
-        env:
-          CHECKSUM_FILE: "checksums.txt"
-
-      - name: "Create release and upload assets"
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: ./*
-          generate_release_notes: true
-          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}
