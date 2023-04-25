@@ -3,7 +3,6 @@ package image
 import (
 	"image"
 	"image/color"
-	"image/draw"
 
 	"github.com/prajeenrg/spawn/pkg/util"
 )
@@ -16,13 +15,6 @@ type Dimens struct {
 type Generator interface {
 	SingleImage(string, *Dimens)
 	MultipleImages(string, string, *Dimens, uint)
-}
-
-func convertNrgbaToRgba(im image.Image) image.Image {
-	b := im.Bounds()
-	rgba := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
-	draw.Draw(rgba, rgba.Bounds(), im, b.Min, draw.Src)
-	return rgba
 }
 
 func generateImage(d *Dimens) image.Image {

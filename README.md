@@ -6,6 +6,4 @@ the cli tool is mostly focused on working with media files and to generate
 them.
 
 ### Dependencies
-Requires the following libraries:
-- [libwebp](https://developers.google.com/speed/webp/docs/api) for webp image generation.
-- [libheif](https://github.com/strukturag/libheif) for heif image generation.
+Requires [libwebp](https://developers.google.com/speed/webp/docs/api) for webp image generation.
